@@ -27,7 +27,7 @@
     > GET /index.html HTTP/1.1
     > Host: localhost:8070
     > Connection: keep-alive
-  *index.html읽어서 보내주면 자동으로 브라우저가 html내부에 적혀있는 link를 다시 서버로 요청한다.  
+  * index.html읽어서 보내주면 자동으로 브라우저가 html내부에 적혀있는 link를 다시 서버로 요청한다.  
 
 
 ### 요구사항 2 - get 방식으로 회원가입
