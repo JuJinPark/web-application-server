@@ -9,9 +9,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import model.User;
+import util.HttpRequestUtils;
 
 public class RequestHandler extends Thread {
     private static final Logger log = LoggerFactory.getLogger(RequestHandler.class);
@@ -33,17 +37,31 @@ public class RequestHandler extends Thread {
         
         	String url=findRequestedURL(in);
             
+        	DataOutputStream dos = new DataOutputStream(out);
+            byte[] body = null;
+            if(url.indexOf("html")!=-1) {
+            	body=Files.readAllBytes(new File("./webapp"+url).toPath());
+            }else {
+            	usercreatehandler(url);
+            	body="저장성공".getBytes();
+            }
             
-            DataOutputStream dos = new DataOutputStream(out);
             
-            byte[] body = Files.readAllBytes(new File("./webapp"+url).toPath());
-       
             response200Header(dos, body.length);
             responseBody(dos, body);
+        
         } catch (IOException e) {
             log.error(e.getMessage());
         }
     }
+    private void usercreatehandler(String url) {
+    
+    	Map<String,String> userinfo=HttpRequestUtils.parseQueryString(url.substring(url.indexOf("?")+1));
+    	User user=new User(userinfo.get("userId"),userinfo.get("password"),userinfo.get("name"),userinfo.get("email"));
+    	log.debug("userinfo - id :{}, passward:{}, name:{}, email:{}",user.getUserId(),user.getPassword(),user.getName(),user.getEmail());
+    }
+    
+ 
     
     private String findRequestedURL(InputStream in) throws IOException {
      	
