@@ -41,14 +41,19 @@ public class RequestHandler extends Thread {
             byte[] body = null;
             if(url.indexOf("html")!=-1) {
             	body=Files.readAllBytes(new File("./webapp"+url).toPath());
-            }else {
-            	usercreatehandler(url);
+          
+            }else if(url.startsWith("/user/create")) {
+            	int indx=url.indexOf("?");
+            	String queryString=url.substring(indx+1);
+            	usercreatehandler(queryString);
+            	
+            	
             	body="저장성공".getBytes();
             }
-            
-            
             response200Header(dos, body.length);
             responseBody(dos, body);
+            
+         
         
         } catch (IOException e) {
             log.error(e.getMessage());
@@ -56,7 +61,7 @@ public class RequestHandler extends Thread {
     }
     private void usercreatehandler(String url) {
     
-    	Map<String,String> userinfo=HttpRequestUtils.parseQueryString(url.substring(url.indexOf("?")+1));
+    	Map<String,String> userinfo=HttpRequestUtils.parseQueryString(url);
     	User user=new User(userinfo.get("userId"),userinfo.get("password"),userinfo.get("name"),userinfo.get("email"));
     	log.debug("userinfo - id :{}, passward:{}, name:{}, email:{}",user.getUserId(),user.getPassword(),user.getName(),user.getEmail());
     }
