@@ -17,4 +17,20 @@ public class IOUtils {
         br.read(body, 0, contentLength);
         return String.copyValueOf(body);
     }
+    
+    public static String StatusHeaderMaker(String status,String message) {
+    	StringBuilder result=new StringBuilder("HTTP/1.1 ");
+    	result.append(status+" ");
+    	result.append(message+" ");
+    	result.append("\r\n");
+    	return result.toString();
+    }
+    
+    public static String otherResposeHeaderMaker(String key,String value) {
+    	StringBuilder result=new StringBuilder();
+    	result.append(key+": ");
+    	result.append(value);
+    	result.append("\r\n");
+    	return result.toString();
+    }
 }
