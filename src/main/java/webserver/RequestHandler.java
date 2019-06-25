@@ -66,7 +66,7 @@ public class RequestHandler extends Thread {
             		//응답헤더 작성
               		responseHeader.append(IOUtils.StatusHeaderMaker("302","Redirect"))
                 	.append(IOUtils.otherResposeHeaderMaker("Location","/index.html"))
-                	.append(IOUtils.otherResposeHeaderMaker("Set-Cookie","logined=true"))
+                	.append(IOUtils.otherResposeHeaderMaker("Set-Cookie","logined=true; Path=/"))
                  	.append("\r\n");
             		 dos.writeBytes(responseHeader.toString());
             		return;
@@ -78,6 +78,7 @@ public class RequestHandler extends Thread {
             	responseHeader.append(IOUtils.StatusHeaderMaker("200","OK"))
             	.append(IOUtils.otherResposeHeaderMaker("Content-Type","text/html;charset=utf-8"))
             	.append(IOUtils.otherResposeHeaderMaker("Content-Length",body.length+""))
+            	.append(IOUtils.otherResposeHeaderMaker("Set-Cookie","logined=false; Path=/"))
             	.append("\r\n");	
             	dos.writeBytes(responseHeader.toString());
             	responseBody(dos, body);
@@ -95,6 +96,16 @@ public class RequestHandler extends Thread {
                  	.append("\r\n");
             		 dos.writeBytes(responseHeader.toString());
                 	
+            	}else if("/user/list".equals(headerInfo.get("url"))) {
+            		
+            		Map<String,String>cookieVal= HttpRequestUtils.parseCookies(headerInfo.get("Cookie"));
+            		boolean logined =Boolean.parseBoolean(cookieVal.get("login"));
+            		
+            		if(login) {
+            			
+            			
+            		}
+            		
             	}
             	
             	
