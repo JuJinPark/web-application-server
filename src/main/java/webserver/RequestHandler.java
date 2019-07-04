@@ -10,7 +10,9 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.nio.file.Files;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -44,12 +46,13 @@ public class RequestHandler extends Thread {
         	//헤더정보 받아오기
         	Map<String,String> headerInfo= readHeader(rd);
          	
+        	
 
         	
             byte[] body = null;
             StringBuilder responseHeader=new StringBuilder();
             
-            if("POST".equals(headerInfo.get("requestType"))) {
+//            if("POST".equals(headerInfo.get("requestType"))) {
             	
             	if("/user/login".equals(headerInfo.get("url"))) {
             		
@@ -99,12 +102,53 @@ public class RequestHandler extends Thread {
             	}else if("/user/list".equals(headerInfo.get("url"))) {
             		
             		Map<String,String>cookieVal= HttpRequestUtils.parseCookies(headerInfo.get("Cookie"));
-            		boolean logined =Boolean.parseBoolean(cookieVal.get("login"));
             		
-            		if(login) {
-            			
-            			
+            		
+            		boolean islLogined;
+            		if(cookieVal.get("logined")==null) {
+            			islLogined=false;
             		}
+            		islLogined =Boolean.parseBoolean(cookieVal.get("logined"));
+            		
+            		
+            	
+            	
+            		if(islLogined) {
+            			Collection<User>  userList=DataBase.findAll();
+            		StringBuilder html=new StringBuilder();
+            		html.append("<table border='1'>");
+            			for(User user:userList) {
+            				html.append("<tr>");
+            				
+            				html.append("<td>"+user.getUserId()+"</td>");
+            				html.append("<td>"+user.getName()+"</td>");
+            				html.append("<td>"+user.getEmail()+"</td>");
+            				html.append("</tr>");
+            			}
+            			html.append("</table>");
+            			
+            		body=html.toString().getBytes();
+            			
+            			
+             		}else {
+             			
+             			body=Files.readAllBytes(new File("./webapp"+"/user/login.html").toPath());
+                    	//응답헤더 작성
+                    	
+             			
+             		}
+            		
+            		
+            		responseHeader.append(IOUtils.StatusHeaderMaker("200","OK"))
+                	.append(IOUtils.otherResposeHeaderMaker("Content-Type","text/html;charset=utf-8"))
+                	.append(IOUtils.otherResposeHeaderMaker("Content-Length",body.length+""))
+                	.append("\r\n");  
+                	
+                	 dos.writeBytes(responseHeader.toString());
+                	 responseBody(dos, body);
+         			
+            		
+            		
             		
             	}
             	
@@ -112,16 +156,22 @@ public class RequestHandler extends Thread {
             	
             	
             	
-            }else {
+           else {
             	
             
             	//각종 html 요청 
             	// 요청 html읽어오기
             	body=Files.readAllBytes(new File("./webapp"+headerInfo.get("url")).toPath());
             	//응답헤더 작성
-            	responseHeader.append(IOUtils.StatusHeaderMaker("200","OK"))
-            	.append(IOUtils.otherResposeHeaderMaker("Content-Type","text/html;charset=utf-8"))
-            	.append(IOUtils.otherResposeHeaderMaker("Content-Length",body.length+""))
+            	responseHeader.append(IOUtils.StatusHeaderMaker("200","OK"));
+            	if("text/css".equals(headerInfo.get("Accept").split(",")[0])) {
+            		responseHeader.append(IOUtils.otherResposeHeaderMaker("Content-Type","text/css"));
+            	}else {
+            		responseHeader.append(IOUtils.otherResposeHeaderMaker("Content-Type","text/html;charset=utf-8"));
+            	}
+    
+            	
+            	responseHeader.append(IOUtils.otherResposeHeaderMaker("Content-Length",body.length+""))
             	.append("\r\n");      	
             	 dos.writeBytes(responseHeader.toString());
             	 responseBody(dos, body);
