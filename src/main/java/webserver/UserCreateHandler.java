@@ -2,8 +2,8 @@ package webserver;
 
 public class UserCreateHandler implements RequestManagable {
 	String url;
-	UserCreateHandler(String url){
-		this.url=url;
+	UserCreateHandler(){
+		
 	}
 		@Override
 		public String getUrl() {

@@ -1,20 +1,22 @@
 package webserver;
 
+import java.util.Map;
+
 public class simpleRequestHandlerFactory implements RequestHandlerFactory{
 
 	RequestManagable requestHandler;
 	
 	@Override
-	public RequestManagable getHandler(String url) {
+	public RequestManagable getHandler(Map<String,String> headerInfo) {
 	
-		if("/user/login".equals(url)) {
-			requestHandler = new LoginHandler(url);
-		}else if("/user/create".equals(url)) {
-			requestHandler = new UserCreateHandler(url);
-		}else if("/user/list".equals("")) {
-			requestHandler = new UserListHandler(url);
+		if("/user/login".equals(headerInfo.get("url"))) {
+			requestHandler = new LoginHandler(headerInfo);
+		}else if("/user/create".equals(headerInfo.get("url"))) {
+			requestHandler = new UserCreateHandler(headerInfo);
+		}else if("/user/list".equals(headerInfo.get("url"))) {
+			requestHandler = new UserListHandler(headerInfo);
 		}else {
-			requestHandler = new BasicHandler(url);
+			requestHandler = new BasicHandler(headerInfo);
 		}
 			
 		return requestHandler;

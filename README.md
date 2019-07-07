@@ -1,4 +1,4 @@
-``# 실습을 위한 개발 환경 세팅
+# 실습을 위한 개발 환경 세팅
 * https://github.com/slipp/web-application-server 프로젝트를 자신의 계정으로 Fork한다. Github 우측 상단의 Fork 버튼을 클릭하면 자신의 계정으로 Fork된다.
 * Fork한 프로젝트를 eclipse 또는 터미널에서 clone 한다.
 * Fork한 프로젝트를 eclipse로 import한 후에 Maven 빌드 도구를 활용해 eclipse 프로젝트로 변환한다.(mvn eclipse:clean eclipse:eclipse)
@@ -84,6 +84,11 @@
 
 ### 리팩토링 작업
 *  ~~url 당 리퀘스트를 핸들하는 부분 분리중~~
+* responsheader를 만들고 마지막에 공백줄(\r\n)붙혀주는 부분 숨기기
+* createHeader, createBody, checklogin
+
+### 배운내용
+* outputstream close 시 자동 flush 됨
 
 
 ### 향후 학습자료
