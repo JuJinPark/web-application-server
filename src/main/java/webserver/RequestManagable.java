@@ -1,7 +1,10 @@
 package webserver;
 
+import java.io.DataOutputStream;
+
+
 public interface RequestManagable {
 
-	String getUrl();
-	public void response();
+
+	public void response(DataOutputStream dos);
 }

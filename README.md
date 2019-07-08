@@ -85,7 +85,8 @@
 ### 리팩토링 작업
 *  ~~url 당 리퀘스트를 핸들하는 부분 분리중~~
 * responsheader를 만들고 마지막에 공백줄(\r\n)붙혀주는 부분 숨기기
-* createHeader, createBody, checklogin
+*  ~~createHeader, createBody, checklogin ~~
+* ~~loginhandler 구현~~
 
 ### 배운내용
 * outputstream close 시 자동 flush 됨

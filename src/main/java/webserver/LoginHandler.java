@@ -1,6 +1,9 @@
 package webserver;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Map;
 
@@ -10,79 +13,112 @@ import util.HttpRequestUtils;
 import util.IOUtils;
 
 public class LoginHandler implements RequestManagable {
-String url;
+//String url;
 Map<String, String> headerInfo;	
-Map<String, User> users;
+BufferedReader inputstream;
+Map<String,String> userinfo;
+//Map<String, User> users;
 
-LoginHandler(Map<String, String> headerInfo){
+
+LoginHandler(Map<String,String> headerInfo,BufferedReader inputstream){
 	this.headerInfo=headerInfo;
+this.inputstream=inputstream;
 }
 
-
-//	if("/user/login".equals(headerInfo.get("url"))) {
-//		
-//    	//로그인 요청한 아이디와 비밀번호 저장
-//    	String content=IOUtils.readData(rd,Integer.parseInt(headerInfo.get("Content-Length")));
-//    	Map<String,String> userinfo=HttpRequestUtils.parseQueryString(content);
-//
-//    	
-//    	
-//    	//맞는 아이디와 비밀번호인지 체크
-//    	if(checkLogin(userinfo.get("userId"),userinfo.get("password"))) {
-//    		//맞을시
-//    		//쿠키값 주고 index로 리다이렉트
-//    		//응답헤더 작성
-//      		responseHeader.append(IOUtils.StatusHeaderMaker("302","Redirect"))
-//        	.append(IOUtils.otherResposeHeaderMaker("Location","/index.html"))
-//        	.append(IOUtils.otherResposeHeaderMaker("Set-Cookie","logined=true; Path=/"))
-//         	.append("\r\n");
-//    		 dos.writeBytes(responseHeader.toString());
-//    		return;
-//    	}
-//    	//틀릴시
-//    	//
-//    	body=Files.readAllBytes(new File("./webapp"+"/user/login_failed.html").toPath());
-//    	//응답헤더 작성
-//    	responseHeader.append(IOUtils.StatusHeaderMaker("200","OK"))
-//    	.append(IOUtils.otherResposeHeaderMaker("Content-Type","text/html;charset=utf-8"))
-//    	.append(IOUtils.otherResposeHeaderMaker("Content-Length",body.length+""))
-//    	.append(IOUtils.otherResposeHeaderMaker("Set-Cookie","logined=false; Path=/"))
-//    	.append("\r\n");	
-//    	dos.writeBytes(responseHeader.toString());
-//    	responseBody(dos, body);
-//    		
-//    
-//    		
-//    	}
-
-
-
 	@Override
-	public String getUrl() {
+	public void response(DataOutputStream dos){
 		// TODO Auto-generated method stub
-		return url;
-	}
-
-
-
-	@Override
-	public void response() {
-		// TODO Auto-generated method stub
+		setUserInfo(getBody());
 		
-	}
-
-
-
-	public String createHeader() {
+		if(checkPassword(getUser(userinfo.get("userId")),userinfo.get("password"))) {
+			loginSucessResponse(dos);
+			return;
+		}
+    
 		
-		return null;
+		loginFailedResponse(dos);
+		
 	}
 	
-	private boolean checkLogin(String userId,String passWord) {
+	
+	
+	private void loginFailedResponse(DataOutputStream dos) {
+		 try {
+			 byte[] body=Files.readAllBytes(new File("./webapp"+"/user/login_failed.html").toPath());
+				dos.writeBytes(createLoginFailedHeader(body));
+				dos.write(body, 0, body.length);
+		        dos.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return;
+	}
+	
+
+
+	private void loginSucessResponse(DataOutputStream dos) {
 		
-		 
-	  
-	    	User member=DataBase.findUserById(userId);
+		
+		 try {
+			dos.writeBytes(createLoginSuccessHeader());
+//			   dos.write(body, 0, body.length);
+	            dos.flush();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return;
+	}
+	
+	private String createLoginSuccessHeader() {
+		StringBuilder responseHeader=new StringBuilder();
+		responseHeader.append(IOUtils.StatusHeaderMaker("302","Redirect"))
+    	.append(IOUtils.otherResposeHeaderMaker("Location","/index.html"))
+    	.append(IOUtils.otherResposeHeaderMaker("Set-Cookie","logined=true; Path=/"))
+     	.append("\r\n");
+		return responseHeader.toString();
+	}
+	
+	private String createLoginFailedHeader(byte[] body) {
+		StringBuilder responseHeader=new StringBuilder();
+    	
+    
+    	responseHeader.append(IOUtils.StatusHeaderMaker("200","OK"))
+    	.append(IOUtils.otherResposeHeaderMaker("Content-Type","text/html;charset=utf-8"))
+    	.append(IOUtils.otherResposeHeaderMaker("Content-Length",body.length+""))
+    	.append(IOUtils.otherResposeHeaderMaker("Set-Cookie","logined=false; Path=/"))
+    	.append("\r\n");	
+    	
+    	return responseHeader.toString();
+    
+//    		
+	}
+
+
+
+	public void setUserInfo(String body){
+		userinfo=HttpRequestUtils.parseQueryString(body);
+	}
+	
+	private String getBody() {
+		try {
+			return IOUtils.readData(inputstream,Integer.parseInt(headerInfo.get("Content-Length")));
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
+
+
+	public boolean checkPassword(User member,String passWord) {
+
 	    	if(member==null) {
 	    		return false;
 	    	}
@@ -98,6 +134,8 @@ LoginHandler(Map<String, String> headerInfo){
 		
 	}
 	
-	private User get
+	private User getUser(String userId) {
+		return DataBase.findUserById(userId);
+	}
 
 }
