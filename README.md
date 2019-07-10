@@ -83,14 +83,16 @@
 *
 
 ### 리팩토링 작업
-*  ~~url 당 리퀘스트를 핸들하는 부분 분리중~~
+* ~~url 당 리퀘스트를 핸들하는 부분 분리중~~
 * responsheader를 만들고 마지막에 공백줄(\r\n)붙혀주는 부분 숨기기
-*  ~~createHeader, createBody, checklogin ~~
+* ~~ createHeader, createBody, checklogin ~~
 * ~~loginhandler 구현~~
+* createuser구현중
 
 ### 배운내용
 * outputstream close 시 자동 flush 됨
-
+## 고민
+* 멤버변수로 정의 하는게 좋은가 가능한면 로컬변수로 두는게 좋은가
 
 ### 향후 학습자료
 * 네트워크 143p
