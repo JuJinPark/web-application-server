@@ -57,7 +57,7 @@ public class CreateHandlerTest {
 		 Map<String,String> userinfo=HttpRequestUtils.parseQueryString(url);
 		 User member2=myUsderCreateHandler.createUser(userinfo);
 		 myUsderCreateHandler.saveUser(member);
-		// assertEquals(member2.toString(),member.toString());
+		
 		assertEquals(member.toString(),DataBase.findUserById("wnwls").toString());
 		
 		

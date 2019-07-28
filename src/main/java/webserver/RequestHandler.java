@@ -41,20 +41,25 @@ public class RequestHandler extends Thread {
         try (InputStream in = connection.getInputStream(); OutputStream out = connection.getOutputStream()) {
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
         	DataOutputStream dos = new DataOutputStream(out);
-        	BufferedReader rd= new BufferedReader(new InputStreamReader(in,"UTF-8"));
-        	
+        	//BufferedReader rd= new BufferedReader(new InputStreamReader(in,"UTF-8"));
+        	HttpRequest request=new HttpRequest(in);
         	//헤더정보 받아오기
-        	Map<String,String> headerInfo= readHeader(rd);
+        	//Map<String,String> headerInfo= readHeader(rd);
          	
         	
 
+        	RequestHandlerFactory requestHandlerFactory = new simpleRequestHandlerFactory();
         	
-            byte[] body = null;
-            StringBuilder responseHeader=new StringBuilder();
+        	RequestManagable requestHandler=requestHandlerFactory.getHandler(request,in);
+        	
+        	requestHandler.response(dos);
+        	
+//            byte[] body = null;
+//            StringBuilder responseHeader=new StringBuilder();
             
-//            if("POST".equals(headerInfo.get("requestType"))) {
+
             	
-            	if("/user/login".equals(headerInfo.get("url"))) {
+            	/*if("/user/login".equals(headerInfo.get("url"))) {
             		
             	//로그인 요청한 아이디와 비밀번호 저장
             	String content=IOUtils.readData(rd,Integer.parseInt(headerInfo.get("Content-Length")));
@@ -176,8 +181,10 @@ public class RequestHandler extends Thread {
             	 dos.writeBytes(responseHeader.toString());
             	 responseBody(dos, body);
             }
-            
+            */
            
+            
+            
             
          
         

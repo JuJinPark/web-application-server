@@ -3,6 +3,10 @@ package webserver;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Map;
 
 import db.DataBase;
@@ -12,53 +16,47 @@ import util.IOUtils;
 
 public class UserCreateHandler implements RequestManagable {
 
-	Map<String, String> headerInfo;	
-	BufferedReader inputstream;
-	
-//	
-//	String content=IOUtils.readData(rd,Integer.parseInt(headerInfo.get("Content-Length")));
-//	//정보 저장
-//	saveUser(content);
-//	//응답헤더 작성
-//	responseHeader.append(IOUtils.StatusHeaderMaker("302","Redirect"))
-//	.append(IOUtils.otherResposeHeaderMaker("Location","/index.html"))
-// 	.append("\r\n");
-//	 dos.writeBytes(responseHeader.toString());
-	
-//    private void saveUser(String url) {
-//        
-//    	Map<String,String> userinfo=HttpRequestUtils.parseQueryString(url);
-//    	User user=new User(userinfo.get("userId"),userinfo.get("password"),userinfo.get("name"),userinfo.get("email"));
-//    	DataBase.addUser(user);
-//    	
-//    	log.debug("userinfo - id :{}, passward:{}, name:{}, email:{}",user.getUserId(),user.getPassword(),user.getName(),user.getEmail());
-//    }
+	HttpRequest request;	
+BufferedReader inputstream;
 
-	UserCreateHandler(Map<String,String> headerInfo,BufferedReader inputstream){
-		this.headerInfo=headerInfo;
-		this.inputstream=inputstream;
+
+	UserCreateHandler(HttpRequest request,InputStream in) throws UnsupportedEncodingException{
+		this.request=request;
+		this.inputstream=new BufferedReader(new InputStreamReader(in,"UTF-8"));
 	}
 	
 	@Override
 	public void response(DataOutputStream dos){
-		// TODO Auto-generated method stub
-		String url=getBody();
-		User member=createUser(HttpRequestUtils.parseQueryString(url));
-		DataBase.addUser(member);
-//		setUserInfo(getBody());
-//		
-//		if(checkPassword(getUser(userinfo.get("userId")),userinfo.get("password"))) {
-//			loginSucessResponse(dos);
-//			return;
-//		}
-//    
-//		
-//		loginFailedResponse(dos);
+
+		
+		User member=createUser();
+		saveUser(member);
+		createSucessResponse(dos);
+
 		
 	}
 	
-	public User createUser(Map<String,String> userinfo) {
-		return new User(userinfo.get("userId"),userinfo.get("password"),userinfo.get("name"),userinfo.get("email"));
+	public User createUser() {
+		
+		String userid;
+		String pwd;
+		String name;
+		String email;
+		
+		try {
+			userid = URLDecoder.decode(request.getParameter("userId"), "UTF-8");
+			pwd = URLDecoder.decode(request.getParameter("password"), "UTF-8");
+			name = URLDecoder.decode(request.getParameter("name"), "UTF-8");
+			email = URLDecoder.decode(request.getParameter("email"), "UTF-8");
+			return new User(userid,pwd,name,email);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return null;
+		
+		
 	}
 	
 	public void saveUser(User member) {
@@ -66,23 +64,27 @@ public class UserCreateHandler implements RequestManagable {
 	}
 	
 	
-	private String getBody() {
-		try {
-			return IOUtils.readData(inputstream,Integer.parseInt(headerInfo.get("Content-Length")));
-		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+	
+	private void createSucessResponse(DataOutputStream dos) {
+		
+		
+		 try {
+			dos.writeBytes(createSuccessHeader());
+	            dos.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return;
 	}
-	
-//	LoginHandler(Map<String,String> headerInfo,BufferedReader inputstream){
-//		this.headerInfo=headerInfo;
-//	this.inputstream=inputstream;
-//	}
+	private String createSuccessHeader() {
+		StringBuilder responseHeader=new StringBuilder();
+		responseHeader.append(IOUtils.StatusHeaderMaker("302","Redirect"))
+    	.append(IOUtils.otherResposeHeaderMaker("Location","/index.html"))
+     	.append("\r\n");
+		return responseHeader.toString();
+	}
 
 
 }

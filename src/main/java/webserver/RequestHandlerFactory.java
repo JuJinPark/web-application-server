@@ -1,10 +1,12 @@
 package webserver;
 
-import java.io.BufferedReader;
-import java.util.Map;
+
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+
 
 public interface RequestHandlerFactory {
-	RequestManagable getHandler(Map<String, String> headerInfo,BufferedReader inputstream);
+	RequestManagable getHandler(HttpRequest request,InputStream in) throws UnsupportedEncodingException;
 
 	
 	

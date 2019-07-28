@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.util.Map;
 
@@ -14,23 +17,23 @@ import util.IOUtils;
 
 public class LoginHandler implements RequestManagable {
 //String url;
-Map<String, String> headerInfo;	
+	HttpRequest request;	
 BufferedReader inputstream;
 Map<String,String> userinfo;
 //Map<String, User> users;
 
 
-LoginHandler(Map<String,String> headerInfo,BufferedReader inputstream){
-	this.headerInfo=headerInfo;
-this.inputstream=inputstream;
+LoginHandler(HttpRequest request,InputStream in) throws UnsupportedEncodingException{
+	this.request=request;
+this.inputstream=new BufferedReader(new InputStreamReader(in,"UTF-8"));
 }
 
 	@Override
 	public void response(DataOutputStream dos){
 		// TODO Auto-generated method stub
-		setUserInfo(getBody());
-		
-		if(checkPassword(getUser(userinfo.get("userId")),userinfo.get("password"))) {
+	
+		User loginedUser=getUser(request.getParameter("userId"));
+		if(checkPassword(loginedUser,request.getParameter("password"))) {
 			loginSucessResponse(dos);
 			return;
 		}
@@ -97,22 +100,22 @@ this.inputstream=inputstream;
 
 
 
-	public void setUserInfo(String body){
-		userinfo=HttpRequestUtils.parseQueryString(body);
-	}
+//	public void setUserInfo(String body){
+//		userinfo=HttpRequestUtils.parseQueryString(body);
+//	}
 	
-	private String getBody() {
-		try {
-			return IOUtils.readData(inputstream,Integer.parseInt(headerInfo.get("Content-Length")));
-		} catch (NumberFormatException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
+//	private String getBody() {
+//		try {
+//			return IOUtils.readData(inputstream,Integer.parseInt(headerInfo.get("Content-Length")));
+//		} catch (NumberFormatException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 
 
 
